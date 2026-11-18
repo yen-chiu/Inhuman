@@ -1,7 +1,11 @@
 # Inhuman · 整活网页合集
 
 > 一个不把你当人的整活网页合集。  
-> 在线预览：**https://cs-lx.github.io/Inhuman/**
+> 在线预览：**https://yenchiu.com/Inhuman/**
+
+本仓库是 [CS-LX/Inhuman](https://github.com/CS-LX/Inhuman) 的维护分支，保留原作者与关卡素材署名；由 [yen-chiu](https://github.com/yen-chiu) 维护部署和使用体验。
+
+返回博客项目页：**https://yenchiu.com/yen-chiu-astro/projects**
 
 这里收集了一堆"抽象"的小网页 —— 长得像验证码、网盘、注册表单…… 点进去会让你开始怀疑人生。
 
@@ -24,12 +28,9 @@
 
 仓库已配置 GitHub Actions 自动部署（`.github/workflows/pages.yml`）。推送到 `main` 后会自动发布到：
 
-**https://cs-lx.github.io/Inhuman/**
+**https://yenchiu.com/Inhuman/**
 
-首次启用时，请在仓库 **Settings → Pages** 中确认 **Source** 为 **GitHub Actions**。若仍使用旧的手动分支部署，也可改为：
-
-1. **Source** 选择 `Deploy from a branch`。
-2. **Branch** 选择 `main`，目录保持 `/ (root)`。
+首次启用时，请在仓库 **Settings → Pages** 中将 **Source** 设为 **GitHub Actions**。当前工作流先检查入口与素材，再仅发布构建后的 `dist/`。
 
 本仓库已经包含：
 
@@ -39,7 +40,7 @@
 
 ## 本地预览
 
-直接双击 `index.html` 可以看效果，但部分整活页面（例如 `Circle` 需要读 `imgs_config.json`）涉及 `fetch`，浏览器安全策略要求用 HTTP 访问。推荐在仓库根目录起一个简易服务器：
+首页使用 ES 模块，部分小游戏还需要通过 `fetch` 加载配置，必须通过 HTTP 预览。推荐在仓库根目录起一个简易服务器：
 
 ```bash
 # Python 3
@@ -54,7 +55,7 @@ npx serve .
 
 1. 建一个新文件夹，例如 `Foo/` 或 `Foo [BVxxxxx]/`。
 2. 在里面放一个以文件夹名（去掉中括号）命名的 HTML，例如 `Foo.html`。
-3. 打开 `index.html`，在 `projects` 数组里加一条：
+3. 打开 `assets/projects.js`，在 `projects` 数组里加一条：
 
    ```js
    {
@@ -68,7 +69,8 @@ npx serve .
    }
    ```
 
-4. 提交并 push，Pages 会自动更新。
+4. 运行 `npm test` 检查入口和关卡素材，再运行 `npm run build` 生成 `dist/`。
+5. 提交并 push，Pages 会先检查再发布 `dist/`；开发脚本、Git 元数据与仓库文档不会随整站上传。
 
 ## License
 
