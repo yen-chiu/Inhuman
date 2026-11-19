@@ -116,25 +116,6 @@
 
         .hint-text { font-size: 13px; color: #666; transition: color 0.3s; flex: 1; text-align: center; }
 
-        .editor-link {
-            font-size: 11px;
-            color: #999;
-            text-decoration: none;
-            white-space: nowrap;
-            transition: color 0.2s;
-        }
-        .editor-link:hover {
-            color: #666;
-            text-decoration: underline;
-        }
-
-        #pack-credit a {
-            color: inherit;
-            text-decoration: none;
-            opacity: 0.75;
-        }
-        #pack-credit a:hover { text-decoration: underline; }
-
         .verify-btn {
             background-color: var(--blue-primary);
             color: white;
@@ -178,7 +159,6 @@
             <div class="title-small">找到匹配右侧图片的位置</div>
             <div class="title-large">证明你是人类 (HUMAN)</div>
             <div class="title-small">错误尝试: <span id="error-count">0</span>/3</div>
-            <div class="title-small" id="pack-credit"></div>
         </div>
         <div class="reference-box">
             <img id="ref-img" src="" alt="参考图">
@@ -193,7 +173,6 @@
     </div>
 
     <div class="footer">
-        <a class="editor-link" href="Editor.html" target="_blank" rel="noopener">我也想做 →</a>
         <div class="hint-text" id="status-msg">点击图片中对应位置</div>
         <button class="verify-btn" onclick="checkVerify()">验证</button>
     </div>
@@ -225,16 +204,6 @@
     const redCircle = document.getElementById('red-circle');
     const statusMsg = document.getElementById('status-msg');
     const arrow = document.getElementById('success-arrow');
-    const packCredit = document.getElementById('pack-credit');
-
-    // 把任意输入限制为 http(s) URL，否则返回 null（防 javascript:/data: URI XSS）
-    function safeHref(url) {
-        if (!url) return null;
-        try {
-            const u = new URL(url, window.location.href);
-            return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : null;
-        } catch { return null; }
-    }
 
     // Fisher–Yates 洗牌
     function shuffle(arr) {
@@ -296,13 +265,7 @@
                     console.warn('[Circle] 跳过 pack', name, ': 格式无效（既不是数组也不是含 items 的对象）');
                     return;
                 }
-                pack.items.forEach(item => {
-                    pool.push(Object.assign({}, item, {
-                        __author: pack.author,
-                        __authorUrl: pack.authorUrl,
-                        __pack: pack.pack
-                    }));
-                });
+                pool.push(...pack.items);
             });
 
             if (pool.length === 0) {
@@ -321,29 +284,6 @@
     // 页面加载完成后启动
     window.onload = init;
 
-    function updatePackCredit(item) {
-        if (!item) {
-            packCredit.textContent = '';
-            return;
-        }
-        const author = item.__author && item.__author !== 'unknown' ? item.__author : null;
-        const displayName = author || '匿名';
-        const href = author ? safeHref(item.__authorUrl) : null;
-        packCredit.textContent = '';
-        packCredit.appendChild(document.createTextNode('本关由 '));
-        if (href) {
-            const a = document.createElement('a');
-            a.href = href;
-            a.target = '_blank';
-            a.rel = 'noopener';
-            a.textContent = '@' + displayName;
-            packCredit.appendChild(a);
-        } else {
-            packCredit.appendChild(document.createTextNode(author ? '@' + displayName : displayName));
-        }
-        packCredit.appendChild(document.createTextNode(' 提供'));
-    }
-
     // 初始化加载
     function loadStep(index) {
         if (index >= roundItems.length) {
@@ -357,8 +297,6 @@
         
         // 淡出效果
         content.classList.add('fade-out');
-        // 作者署名立刻刷新，不陪图片等 500ms
-        updatePackCredit(data);
         
         setTimeout(() => {
             document.getElementById('ref-img').src = data.ref;
