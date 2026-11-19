@@ -367,11 +367,14 @@
         if (phase !== 3) return;
         clearInterval(timerInterval);
         phase = 4; // 锁定操作
+        countdownEl.innerText = '';
         verifyBtn.style.display = 'none';
         cellsData.forEach(c => c.element.tabIndex = -1);
         setStatus('正在核对验证结果…');
 
         let isPass = true;
+        let missedCount = 0;
+        let incorrectCount = 0;
 
         // 翻开所有卡牌并展示对错
         cellsData.forEach(c => {
@@ -386,12 +389,14 @@
             } else if (c.isTarget && !c.isSelected) {
                 // 漏选了
                 isPass = false;
+                missedCount++;
                 iconEl.textContent = '!';
                 iconEl.style.backgroundColor = '#f0ad4e';
                 c.element.classList.add('selected'); // 标出应该选的
             } else if (!c.isTarget && c.isSelected) {
                 // 错选了
                 isPass = false;
+                incorrectCount++;
                 iconEl.textContent = '×';
                 iconEl.style.backgroundColor = '#d9534f';
             } else {
@@ -399,12 +404,31 @@
             }
         });
 
-        const passed = isPass && cellsData.some(c => c.isSelected);
-        setStatus(passed ? '验证通过，正在继续访问…' : '验证未通过，请重新完成验证。', passed ? 'success' : 'error');
-        resultTimeout = setTimeout(() => {
-            if (passed) window.location.href = 'https://www.bilibili.com/video/BV1UT42167xb/';
-            else initGame();
-        }, 1800);
+        const hasSelected = cellsData.some(c => c.isSelected);
+        const passed = isPass && hasSelected;
+        if (passed) {
+            setStatus('验证通过。', 'success');
+            headerEl.dataset.state = 'success';
+            phaseDescriptionEl.textContent = '即将继续访问，请稍候。';
+            resultTimeout = setTimeout(() => {
+                setStatus('正在恢复访问…', 'success');
+                phaseDescriptionEl.textContent = '请保持此页面打开。';
+                resultTimeout = setTimeout(() => {
+                    window.location.href = 'https://www.bilibili.com/video/BV1UT42167xb/';
+                }, 1200);
+            }, 900);
+        } else {
+            const message = !hasSelected
+                ? '尚未选择任何图片，请选择所有符合要求的图片。'
+                : missedCount && incorrectCount
+                    ? '存在未选择的目标图片，且包含不符合要求的图片。'
+                    : missedCount
+                        ? '存在未选择的目标图片，请重新验证。'
+                        : '包含不符合要求的图片，请重新验证。';
+            setStatus(message, 'error');
+            phaseDescriptionEl.textContent = '验证未通过，即将加载新的一组图片。';
+            resultTimeout = setTimeout(initGame, 2400);
+        }
     }
 
     document.getElementById('refresh-btn').addEventListener('click', initGame);

@@ -10,6 +10,7 @@ h1 { font-size: 24px; letter-spacing: -.4px; font-weight: 650; margin: 0 0 10px;
 .captcha-container { background: #fff; border: 1px solid #d7dde5; border-radius: 5px; overflow: hidden; box-shadow: 0 3px 12px #26344808; }
 .header { background: #3569ab; color: white; padding: 19px 20px 17px; position: relative; min-height: 116px; }
 .header[data-state='processing'] { background: #43617e; }
+.header[data-state='success'] { background: #327251; }
 .instruction { font-size: 12px; line-height: 1.6; padding-right: 38px; opacity: .92; }
 .target { font-size: 26px; font-weight: 650; margin-top: 3px; padding-right: 40px; }
 .countdown { position: absolute; right: 20px; top: 26px; font-size: 20px; font-variant-numeric: tabular-nums; }
