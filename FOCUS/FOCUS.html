@@ -3,164 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>地狱级人机验证</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-        }
-        .captcha-container {
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            width: 350px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .header {
-            background-color: #4a90e2;
-            color: white;
-            padding: 20px;
-            position: relative;
-        }
-        .instruction {
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        .target {
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .countdown {
-            position: absolute;
-            right: 20px;
-            top: 30px;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .grid-container {
-            position: relative;
-            width: 330px;
-            height: 330px;
-            margin: 10px auto;
-            background: #fff;
-        }
-        .cell {
-            position: absolute;
-            width: 104px;
-            height: 104px;
-            perspective: 1000px;
-            cursor: pointer;
-            /* 1/3拍 (BPM 100 -> 1拍600ms -> 1/3拍200ms) */
-            transition: top 0.2s ease-in-out, left 0.2s ease-in-out;
-        }
-        .flipper {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transition: transform 0.4s;
-            transform-style: preserve-3d;
-        }
-        .cell.face-down .flipper {
-            transform: rotateY(180deg);
-        }
-        .front, .back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 2px;
-        }
-        .front {
-            /* 正面展示图片内容 */
-            background-size: cover;
-            background-position: center center;
-        }
-        .back {
-            /* 纯色背面 */
-            background-color: #8c92ac;
-            transform: rotateY(180deg);
-        }
-        .selected-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            border: 4px solid #4a90e2;
-            background: rgba(255, 255, 255, 0.3);
-            display: none;
-            box-sizing: border-box;
-            z-index: 2;
-        }
-        .cell.selected .selected-overlay {
-            display: block;
-        }
-        .result-icon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-            z-index: 3;
-        }
-        .footer {
-            padding: 10px;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fafafa;
-            height: 40px;
-        }
-        .verify-btn {
-            background: #4a90e2;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            display: none;
-        }
-        .verify-btn:hover {
-            background: #357abd;
-        }
-        .icons {
-            display: flex;
-            gap: 15px;
-            color: #777;
-            font-size: 20px;
-        }
-    </style>
+    <title>访问验证 · yenchiu.com</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="verification.css">
 </head>
 <body>
-
-<div class="captcha-container">
-    <div class="header" id="header">
-        <div class="instruction" id="instruction">请选择包含</div>
-        <div class="target" id="target-name">加载中...</div>
-        <div class="countdown" id="countdown"></div>
-    </div>
-    <div class="grid-container" id="grid">
-    </div>
-    <div class="footer">
-        <div class="icons">↻ 🎧 ℹ️</div>
-        <button class="verify-btn" id="verify-btn">验证</button>
-    </div>
-</div>
+<main class="verification-page">
+    <div class="site-identity"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6Z"/><path d="m8 12 3 3 5-6"/></svg><span>yenchiu.com</span><span class="connection">访问验证</span></div>
+    <h1>请完成安全验证</h1>
+    <p class="page-description">检测到短时间内的重复操作。<br>请按照下方提示完成验证，以继续访问。</p>
+    <section class="captcha-container" aria-label="图片验证">
+        <div class="header" id="header">
+            <div class="instruction" id="instruction">正在准备验证</div>
+            <div class="target" id="target-name">加载图片</div>
+            <div class="countdown" id="countdown" aria-label="剩余秒数"></div>
+            <div class="phase-description" id="phase-description">请稍候，正在加载验证内容。</div>
+        </div>
+        <div class="grid-container" id="grid" role="group" aria-label="验证图片"></div>
+        <div class="footer">
+            <button type="button" class="refresh-btn" id="refresh-btn" aria-label="重新加载验证" title="重新加载验证"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 7a7 7 0 0 1 11.7-1L20 9M4 15l2.3 3A7 7 0 0 0 18 17"/></svg></button>
+            <span class="verification-label">图片验证</span>
+            <button type="button" class="verify-btn" id="verify-btn">验证</button>
+        </div>
+        <div class="verification-status" id="verification-status" role="status" aria-live="polite"></div>
+    </section>
+    <p class="request-note">验证期间请保持此页面打开</p>
+</main>
 
 <script>
     // 题目配置
@@ -255,6 +123,9 @@
     let timerInterval = null;
     let transformInterval = null;
     let transformCount = 0;
+    let stageTimeout = null;
+    let resultTimeout = null;
+    let roundId = 0;
 
     const gridEl = document.getElementById('grid');
     const targetNameEl = document.getElementById('target-name');
@@ -262,21 +133,33 @@
     const countdownEl = document.getElementById('countdown');
     const verifyBtn = document.getElementById('verify-btn');
     const headerEl = document.getElementById('header');
+    const statusEl = document.getElementById('verification-status');
+    const phaseDescriptionEl = document.getElementById('phase-description');
+    function setStatus(message, state = '') {
+        statusEl.textContent = message;
+        statusEl.dataset.state = state;
+    }
 
     // 游戏初始化
-    function initGame() {
+    async function initGame() {
+        const thisRound = ++roundId;
+        clearTimeout(stageTimeout);
+        clearTimeout(resultTimeout);
+        setStatus('');
+        countdownEl.innerText = '';
+        phaseDescriptionEl.textContent = '请稍候，正在加载验证内容。';
         clearInterval(timerInterval);
         clearInterval(transformInterval);
         gridEl.innerHTML = '';
         cellsData = [];
         phase = 1;
         verifyBtn.style.display = 'none';
-        headerEl.style.backgroundColor = '#4a90e2';
+        headerEl.dataset.state = 'active';
 
         // 随机选定一个主题
         currentTheme = THEMES[Math.floor(Math.random() * THEMES.length)];
         targetNameEl.innerText = currentTheme.target;
-        instructionEl.innerText = '请在倒计时结束前记住包含';
+        instructionEl.innerText = '请记住所有包含下列内容的图片';
 
         // 生成9个格子数据 (保证有2-4个目标)
         let targetCount = Math.floor(Math.random() * 3) + 2;
@@ -294,6 +177,10 @@
 
             let cellDiv = document.createElement('div');
             cellDiv.className = 'cell';
+            cellDiv.setAttribute('role', 'checkbox');
+            cellDiv.setAttribute('aria-label', '图片 ' + (i + 1));
+            cellDiv.setAttribute('aria-checked', 'false');
+            cellDiv.tabIndex = -1;
             cellDiv.innerHTML = `
                 <div class="flipper">
                     <div class="front" style="background-image: url('${imageUrls[i]}')"></div>
@@ -306,16 +193,21 @@
             gridEl.appendChild(cellDiv);
 
             // 点击事件
-            cellDiv.addEventListener('click', () => {
+            const selectCell = () => {
                 if (phase === 3) {
                     let cellData = cellsData.find(c => c.id === i);
                     cellData.isSelected = !cellData.isSelected;
+                    cellDiv.setAttribute('aria-checked', String(cellData.isSelected));
                     if (cellData.isSelected) {
                         cellDiv.classList.add('selected');
                     } else {
                         cellDiv.classList.remove('selected');
                     }
                 }
+            };
+            cellDiv.addEventListener('click', selectCell);
+            cellDiv.addEventListener('keydown', event => {
+                if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); selectCell(); }
             });
 
             cellsData.push({
@@ -329,19 +221,32 @@
         }
 
         updatePositions();
+        try {
+            await Promise.all(imageUrls.map(url => new Promise((resolve, reject) => {
+                const image = new Image();
+                image.onload = resolve;
+                image.onerror = reject;
+                image.src = url;
+            })));
+        } catch {
+            if (thisRound === roundId) setStatus('图片加载失败，请点击刷新重新验证。', 'error');
+            return;
+        }
+        if (thisRound !== roundId) return;
         startPhase1();
     }
 
     function updatePositions() {
         cellsData.forEach(cell => {
             // 每个格子宽104px，间隔大概6px，总宽度330
-            cell.element.style.top = `${cell.row * 110}px`;
-            cell.element.style.left = `${cell.col * 110}px`;
+            cell.element.style.top = `${cell.row * 100 / 3}%`;
+            cell.element.style.left = `${cell.col * 100 / 3}%`;
         });
     }
 
     // 第一阶段：展示环节
     function startPhase1() {
+        phaseDescriptionEl.textContent = '请记住图片的位置，随后图片将进行位置调整。';
         cellsData.forEach(c => c.element.classList.remove('face-down', 'selected'));
         let timeLeft = 5;
         countdownEl.innerText = timeLeft;
@@ -359,10 +264,11 @@
     // 第二阶段：打乱环节
     function startPhase2() {
         phase = 2;
-        instructionEl.innerText = '注意变换';
-        targetNameEl.innerText = 'FOCUS';
+        instructionEl.innerText = '正在调整图片位置';
+        targetNameEl.innerText = '请保持关注';
+        phaseDescriptionEl.textContent = '位置调整结束后，请选择刚才记住的图片。';
         countdownEl.innerText = '';
-        headerEl.style.backgroundColor = '#d9534f'; // 变红警示
+        headerEl.dataset.state = 'processing';
 
         // 所有卡牌翻面
         cellsData.forEach(c => c.element.classList.add('face-down'));
@@ -370,7 +276,7 @@
         transformCount = 0;
 
         // 延迟一下等翻面动画结束后开始矩阵变换
-        setTimeout(() => {
+        stageTimeout = setTimeout(() => {
             transformInterval = setInterval(() => {
                 applyRandomTransform();
                 transformCount++;
@@ -436,8 +342,10 @@
     // 第三阶段：选择环节
     function startPhase3() {
         phase = 3;
-        headerEl.style.backgroundColor = '#4a90e2';
-        instructionEl.innerText = '请选择所有';
+        headerEl.dataset.state = 'active';
+        instructionEl.innerText = '请选择所有包含下列内容的图片';
+        phaseDescriptionEl.textContent = '完成选择后点击验证。';
+        cellsData.forEach(c => c.element.tabIndex = 0);
         targetNameEl.innerText = currentTheme.target;
         verifyBtn.style.display = 'block';
 
@@ -456,9 +364,12 @@
 
     // 验证逻辑
     function checkResult() {
+        if (phase !== 3) return;
         clearInterval(timerInterval);
         phase = 4; // 锁定操作
         verifyBtn.style.display = 'none';
+        cellsData.forEach(c => c.element.tabIndex = -1);
+        setStatus('正在核对验证结果…');
 
         let isPass = true;
 
@@ -470,42 +381,33 @@
 
             if (c.isTarget && c.isSelected) {
                 // 选对了
-                iconEl.innerHTML = '✔️';
+                iconEl.textContent = '✓';
                 iconEl.style.backgroundColor = '#5cb85c';
             } else if (c.isTarget && !c.isSelected) {
                 // 漏选了
                 isPass = false;
-                iconEl.innerHTML = '❗';
+                iconEl.textContent = '!';
                 iconEl.style.backgroundColor = '#f0ad4e';
                 c.element.classList.add('selected'); // 标出应该选的
             } else if (!c.isTarget && c.isSelected) {
                 // 错选了
                 isPass = false;
-                iconEl.innerHTML = '❌';
+                iconEl.textContent = '×';
                 iconEl.style.backgroundColor = '#d9534f';
             } else {
                 iconEl.style.display = 'none';
             }
         });
 
-        // 2秒后结算
-        setTimeout(() => {
-            if (isPass) {
-                // 必须至少选了一个才算过，防止全部没点直接判定过
-                let hasSelected = cellsData.some(c => c.isSelected);
-                if(hasSelected) {
-                    window.location.href = 'https://www.bilibili.com/video/BV1UT42167xb/';
-                } else {
-                    alert('验证失败：您没有进行任何选择！');
-                    initGame();
-                }
-            } else {
-                alert('验证失败：请重新尝试！');
-                initGame();
-            }
-        }, 2000);
+        const passed = isPass && cellsData.some(c => c.isSelected);
+        setStatus(passed ? '验证通过，正在继续访问…' : '验证未通过，请重新完成验证。', passed ? 'success' : 'error');
+        resultTimeout = setTimeout(() => {
+            if (passed) window.location.href = 'https://www.bilibili.com/video/BV1UT42167xb/';
+            else initGame();
+        }, 1800);
     }
 
+    document.getElementById('refresh-btn').addEventListener('click', initGame);
     verifyBtn.addEventListener('click', checkResult);
 
     // 启动游戏
